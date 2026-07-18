@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Farm illustration">
+  <rect width="800" height="500" fill="#e8f5e9"/>
+  <circle cx="680" cy="90" r="50" fill="#ffd54f"/>
+  <rect x="0" y="300" width="800" height="200" fill="#81c784"/>
+  <path d="M0 350 C180 290, 320 410, 500 350 C610 315, 730 390, 800 350 L800 500 L0 500 Z" fill="#4caf50"/>
+  <rect x="120" y="220" width="160" height="110" fill="#8d6e63"/>
+  <polygon points="100,220 200,150 300,220" fill="#5d4037"/>
+  <rect x="185" y="260" width="35" height="70" fill="#d7ccc8"/>
+  <rect x="350" y="260" width="12" height="90" fill="#6d4c41"/>
+  <circle cx="356" cy="250" r="32" fill="#2e7d32"/>
+  <rect x="420" y="240" width="12" height="110" fill="#6d4c41"/>
+  <circle cx="426" cy="225" r="38" fill="#388e3c"/>
+  <rect x="510" y="255" width="12" height="95" fill="#6d4c41"/>
+  <circle cx="516" cy="242" r="34" fill="#43a047"/>
+</svg>
