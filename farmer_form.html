@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Farmer Crop Form | Pasumai Pettagam</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f1fff1;
+      padding: 20px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .top-controls {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+    }
+
+    .top-controls button {
+      padding: 6px 12px;
+      margin-left: 5px;
+      border: none;
+      border-radius: 6px;
+      background: #2e8b57;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .top-controls button:hover {
+      background: #256e47;
+    }
+
+    .form-box {
+      background: white;
+      width: 95%;
+      max-width: 550px;
+      padding: 25px 35px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+
+    h2 {
+      color: #2e8b57;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-top: 12px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+    }
+
+    button.submit-btn {
+      width: 100%;
+      padding: 12px;
+      background: #2e8b57;
+      color: white;
+      font-size: 16px;
+      border: none;
+      margin-top: 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button.submit-btn:hover {
+      background: #256e47;
+    }
+
+    .logo {
+      width: 120px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP RIGHT : TRANSLATE + SPEAKER -->
+  <div class="top-controls">
+    <button onclick="translateToTamil()">தமிழ்</button>
+    <button onclick="translateToEnglish()">English</button>
+    <button onclick="speak()">🔊 Speaker</button>
+  </div>
+
+  <!-- LOGO -->
+  <img src="images/dt  logo.png" class="logo" alt="Logo" />
+
+  <div class="form-box" id="content">
+    <h2>Farmer Crop Registration Form</h2>
+
+    <form onsubmit="event.preventDefault(); window.location.href='home_farmer.html';">
+
+      <label>Crop Name</label>
+      <input type="text" placeholder="Type your crop name" required />
+
+      <label>Acre (Weight Unit)</label>
+      <input type="text" placeholder="Enter acre" required />
+
+      <label>Per Ton (Price)</label>
+      <input type="number" placeholder="Enter price per ton" required />
+
+      <label>Sowing Date (Optional)</label>
+      <input type="date" />
+
+      <label>Harvesting Date (Optional)</label>
+      <input type="date" />
+
+      <label>Country</label>
+      <input type="text" placeholder="Enter country" required />
+
+      <label>State</label>
+      <input type="text" placeholder="Enter state" required />
+
+      <label>District</label>
+      <input type="text" placeholder="Enter district" required />
+
+      <label>City</label>
+      <input type="text" placeholder="Enter city" required />
+
+      <label>Town</label>
+      <input type="text" placeholder="Enter town" required />
+
+      <label>Pincode</label>
+      <input type="number" placeholder="Enter pincode" required />
+
+      <button type="button" 
+        class="submit-btn" 
+        onclick="window.location.href='home_farmer.html'">
+    Submit & Go to Home Page
+</button>
+
+
+
+
+    </form>
+  </div>
+
+  <!-- TRANSLATION & SPEECH JS -->
+  <script>
+    function speak() {
+      let msg = new SpeechSynthesisUtterance(
+        "This is the farmer crop entry page. Here the farmer should enter crop name, acre, price per ton, sowing date, harvesting date, and complete location details such as country, state, district, city, town, and pincode."
+      );
+      msg.lang = "en-US";
+      window.speechSynthesis.speak(msg);
+    }
+
+    function translateToTamil() {
+      document.getElementById("content").innerHTML =
+      `<h2>விவசாயி பயிர் பதிவு படிவம்</h2>
+
+      <form onsubmit="event.preventDefault(); window.location.href='home_farmer.html';">
+
+        <label>பயிர் பெயர்</label>
+        <input type="text" placeholder="பயிர் பெயரை பதிவு செய்யவும்" required />
+
+        <label>ஏக்கர் (எடை அலகு)</label>
+        <input type="text" placeholder="ஏக்கர் அளவு" required />
+
+        <label>ஒரு டன் விலை</label>
+        <input type="number" placeholder="ஒரு டன் விலையை எழுதவும்" required />
+
+        <label>விதைப்பு தேதி (விருப்பம்)</label>
+        <input type="date" />
+
+        <label>அறுவடை தேதி (விருப்பம்)</label>
+        <input type="date" />
+
+        <label>நாடு</label>
+        <input type="text" placeholder="நாட்டின் பெயர்" required />
+
+        <label>மாநிலம்</label>
+        <input type="text" placeholder="மாநிலம்" required />
+
+        <label>மாவட்டம்</label>
+        <input type="text" placeholder="மாவட்டம்" required />
+
+        <label>நகரம்</label>
+        <input type="text" placeholder="நகரம்" required />
+
+        <label>ஊர்</label>
+        <input type="text" placeholder="ஊர்" required />
+
+        <label>அஞ்சல் குறியீடு</label>
+        <input type="number" placeholder="பின் குறியீடு" required />
+
+        <button class="submit-btn" type="submit">சமர்ப்பிக்க</button>
+
+      </form>`;
+    }
+
+    function translateToEnglish() {
+      location.reload();
+    }
+  </script>
+
+</body>
+</html>

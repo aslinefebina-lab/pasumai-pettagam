@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register as Stockist | Pasumai Pettagam</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f8fff8;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Logo */
+    .logo {
+      width: 120px;
+      margin-bottom: 15px;
+    }
+
+    /* Top right tools */
+    .tools {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .tools button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      background: #2e8b57;
+      color: white;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .tools button:hover {
+      background: #256e47;
+    }
+
+    .register-box {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      padding: 30px 40px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    h2 {
+      color: #2e8b57;
+      font-size: 1.6rem;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 500;
+      text-align: left;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 15px;
+      background: #2e8b57;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #256e47;
+    }
+    a {
+      display: block;
+      margin-top: 12px;
+      color: #2e8b57;
+      text-decoration: none;
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Translation + Speaker -->
+  <div class="tools">
+    <button onclick="translateToTamil()">தமிழ்</button>
+    <button onclick="translateToEnglish()">English</button>
+    <button onclick="speakText()">🔊</button>
+  </div>
+
+  <!-- Your Logo -->
+  <img src="images/dt  logo.png" alt="Logo" class="logo">
+
+  <div class="register-box">
+    <h2>Register as Stockist</h2>
+
+    <form>
+      <label>Name</label>
+      <input type="text" placeholder="Enter your name" required />
+
+      <label>Email</label>
+      <input type="email" placeholder="Enter your email" required />
+
+      <label>Company Name</label>
+      <input type="text" placeholder="Enter company name" required />
+
+      <label>Location</label>
+      <input type="text" placeholder="Enter location" required />
+
+      <label>Password</label>
+      <input type="password" placeholder="Create password" required />
+
+      <button type="button" onclick="window.location.href='home_stockist.html'">
+        Login
+      </button>
+    </form>
+
+    <a href="login.html">Back to Login</a>
+  </div>
+
+  <!-- Translation & Speech Scripts -->
+  <script>
+    let originalContent = document.body.innerHTML;
+
+    function translateToTamil() {
+      document.body.innerHTML = originalContent.replace(/Register as Stockist/g, "சரக்காளர் பதிவு")
+        .replace(/Enter your name/g, "உங்கள் பெயரை உள்ளிடவும்")
+        .replace(/Enter your email/g, "உங்கள் மின்னஞ்சலை உள்ளிடவும்")
+        .replace(/Enter company name/g, "நிறுவனத்தின் பெயரை உள்ளிடவும்")
+        .replace(/Enter location/g, "இருப்பிடத்தை உள்ளிடவும்")
+        .replace(/Create password/g, "கடவுச்சொல்லை உருவாக்கவும்")
+        .replace(/Login/g, "உள்நுழைக")
+        .replace(/Back to Login/g, "உள்நுழைவு பக்கத்துக்கு திரும்பவும்");
+    }
+
+    function translateToEnglish() {
+      location.reload();
+    }
+
+    function speakText() {
+      const message = "This is the stockist registration page. Here the stockist should enter their name, email, company name, location and password.";
+      const speech = new SpeechSynthesisUtterance(message);
+      speech.lang = "en-US";
+      window.speechSynthesis.speak(speech);
+    }
+  </script>
+
+</body>
+</html>
+

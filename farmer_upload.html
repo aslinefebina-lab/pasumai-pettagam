@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Uploads - PASUMAI PETTAGAM</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f3f8f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #2e7d32;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      position: relative;
+    }
+
+    /* SPEAKER BUTTON */
+    .speaker-btn {
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      background: white;
+      border: none;
+      font-size: 22px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    /* LANGUAGE BUTTONS */
+    .lang-box {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .lang-btn {
+      background: #2e7d32;
+      color: white;
+      padding: 8px 15px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    .lang-btn:hover {
+      background: #1b5e20;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+
+    h2 {
+      color: #2e7d32;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .box {
+      border: 2px dashed #2e7d32;
+      border-radius: 12px;
+      height: 140px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #2e7d32;
+      font-size: 2.5rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .box:hover {
+      background-color: #e8f5e9;
+    }
+
+    .box img, .box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    PASUMAI PETTAGAM
+    <button class="speaker-btn" onclick="speakEnglish()">🔊</button>
+  </header>
+
+  <div class="lang-box">
+    <button class="lang-btn" onclick="setLanguage('en')">English</button>
+    <button class="lang-btn" onclick="setLanguage('ta')">தமிழ்</button>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <h2 id="photoTitle">📸 Upload Crop Photos</h2>
+
+      <div class="grid" id="photoGrid">
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+        <div class="box" onclick="uploadFile(this, 'photo')">+</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 id="videoTitle">🎥 Upload Crop Videos</h2>
+
+      <div class="grid" id="videoGrid">
+        <div class="box" onclick="uploadFile(this, 'video')">+</div>
+        <div class="box" onclick="uploadFile(this, 'video')">+</div>
+        <div class="box" onclick="uploadFile(this, 'video')">+</div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="photoInput" accept="image/*">
+  <input type="file" id="videoInput" accept="video/*">
+
+  <script>
+    /* FILE UPLOAD FUNCTION */
+    function uploadFile(box, type) {
+      const input = type === 'photo' ? document.getElementById('photoInput') : document.getElementById('videoInput');
+      input.click();
+
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const url = URL.createObjectURL(file);
+          box.innerHTML = "";
+          if (type === 'photo') {
+            const img = document.createElement('img');
+            img.src = url;
+            box.appendChild(img);
+          } else {
+            const video = document.createElement('video');
+            video.src = url;
+            video.controls = true;
+            box.appendChild(video);
+          }
+        }
+      };
+    }
+
+    /* TRANSLATION SYSTEM */
+    const textMap = {
+      en: {
+        photos: "📸 Upload Crop Photos",
+        videos: "🎥 Upload Crop Videos"
+      },
+      ta: {
+        photos: "📸 பயிர் புகைப்படங்களை பதிவேற்றவும்",
+        videos: "🎥 பயிர் வீடியோக்களை பதிவேற்றவும்"
+      }
+    };
+
+    function setLanguage(lang) {
+      document.getElementById("photoTitle").innerText = textMap[lang].photos;
+      document.getElementById("videoTitle").innerText = textMap[lang].videos;
+    }
+
+    /* SPEAKER (ENGLISH ONLY) */
+    function speakEnglish() {
+      const msg = new SpeechSynthesisUtterance(
+        "This is the farmer upload page. The farmers should upload the images and videos of their crop here. Click the plus symbol in any box to select and add your file."
+      );
+      msg.lang = "en-IN";
+      msg.rate = 1;
+      window.speechSynthesis.speak(msg);
+    }
+  </script>
+
+</body>
+</html>
+

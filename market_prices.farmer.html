@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Daily Market Prices — Pasumai Pettagam</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{--green:#1b7a2b;--soft:#eaf7ea}
+  body{margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(180deg,#f6fff6,#eef7ee);color:#0f3a17}
+  .container{max-width:1100px;margin:28px auto;padding:18px}
+  .top {display:flex;align-items:center;gap:18px;justify-content:space-between}
+  .logo-center{display:flex;flex-direction:column;align-items:center;flex:1}
+  .logo-center img{width:120px;border-radius:12px;box-shadow:0 6px 18px rgba(9,73,17,0.08)}
+  .title{font-weight:700;color:var(--green);font-size:20px;margin-top:6px}
+  .tools{display:flex;gap:10px;align-items:center}
+  .tool-btn{padding:8px 12px;border-radius:8px;border:0;background:var(--green);color:#fff;font-weight:600;cursor:pointer}
+  .speak{background:#fff;color:var(--green);border:2px solid var(--green)}
+  .farmer-photo{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,0.08)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:22px}
+  .card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+  .card h3{margin:0 0 8px;color:var(--green);font-size:16px}
+  .card .meta{font-size:13px;color:#4b6b53;margin-bottom:10px}
+  .price{font-size:20px;font-weight:700;color:#064b16}
+  .small{font-size:13px;color:#6b8a6c}
+
+  .list{max-height:420px;overflow:auto}
+  .crop-row{display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-bottom:1px dashed #eef6ee}
+  .crop-row button{background:var(--green);color:#fff;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+
+  .details-panel{margin-top:18px;background:linear-gradient(180deg,#fbfff9, #fff);padding:12px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.05)}
+  @media(max-width:720px){.top{flex-direction:column}.logo-center{order:2}.tools{order:1}}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top">
+      <div class="logo-center">
+        <img src="images/dt logo.png" alt="logo">
+        <div class="title">Daily Market Prices — Tamil Nadu</div>
+      </div>
+
+      <div class="tools">
+        <img src="images/farmer_photo.png" class="farmer-photo" alt="Farmer" id="farmerPhoto">
+        <button class="tool-btn" onclick="setLanguage('en')">EN</button>
+        <button class="tool-btn" onclick="setLanguage('ta')">TA</button>
+        <button class="tool-btn speak" onclick="speakPage()">🔊 Speak</button>
+      </div>
+    </div>
+
+    <p style="color:#355b3b;margin-top:14px">Click a crop below to view today's price and last 7 days trend.</p>
+
+    <div style="display:flex;gap:18px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:300px">
+        <div class="card">
+          <h3>Available Crops</h3>
+          <div class="list" id="cropList">
+            <!-- dynamic rows -->
+            <div class="small">Loading market data…</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:320px">
+        <div class="card details-panel" id="details">
+          <h3 id="dCrop">Select a crop</h3>
+          <div class="meta" id="dMarket">Market: —</div>
+          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+            <div>
+              <div class="price" id="dPrice">—</div>
+              <div class="small" id="dDate">Date: —</div>
+            </div>
+            <div style="width:48%">
+              <canvas id="trendChart" height="140"></canvas>
+            </div>
+          </div>
+          <div style="margin-top:10px"><button class="tool-btn" onclick="openAgriSource()">Open source</button></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+/*
+  Frontend logic:
+  - Calls the local proxy: /api/prices
+  - Parses returned rows (the server returns raw rows array). We expose a best-effort list of crops.
+  - When a crop selected, we request the server again with state+commodity (future enhancement)
+  - We simulate a 7-day history using the last 7 entries for the crop (if available) or fallback to mock trend.
+*/
+
+const API_BASE = location.origin.replace(/(:\d+)?$/, ':3000'); // assumes server runs on localhost:3000
+// example: http://localhost:3000
+
+let allRows = []; // raw rows from server
+let cropIndex = {}; // map crop->aggregated latest object
+let chart = null;
+let currentLang = 'en';
+
+function humanizeRow(raw) {
+  // raw is array of strings extracted by server
+  // Try to detect commodity name and prices heuristically
+  // Common agmarknet rows: [Commodity, Variety, Market, MinPrice, MaxPrice, ModalPrice, Date]
+  const r = raw.map(c => (typeof c === 'string' ? c.replace(/\s+/g,' ').trim() : c));
+  // heuristics:
+  const commodity = r[0] || 'Unknown';
+  const market = r[2] || (r[1] ? r[1]:'Market');
+  const prices = r.slice(-4).filter(Boolean);
+  return {
+    commodity,
+    market,
+    raw: r,
+    priceText: prices.join(' | ')
+  };
+}
+
+async function loadPrices() {
+  try {
+    const resp = await fetch(API_BASE + '/api/prices?state=Tamil%20Nadu');
+    const j = await resp.json();
+    allRows = j.rows || [];
+    const items = allRows.map(r => humanizeRow(r.raw || r));
+    // build unique crop list - take first occurrence as latest
+    cropIndex = {};
+    items.forEach(it => {
+      const key = it.commodity || 'Unknown';
+      if (!cropIndex[key]) cropIndex[key] = it;
+    });
+    renderCropList(Object.values(cropIndex));
+  } catch (err) {
+    document.getElementById('cropList').innerHTML = '<div class="small">Failed to load data. Start the server proxy (server.js) and try again.</div>';
+    console.error(err);
+  }
+}
+
+function renderCropList(list) {
+  const el = document.getElementById('cropList');
+  el.innerHTML = '';
+  list.sort((a,b)=> (a.commodity||'').localeCompare(b.commodity||''));
+  list.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'crop-row';
+    row.innerHTML = `<div>
+        <div style="font-weight:600">${escapeHtml(item.commodity)}</div>
+        <div class="small">${escapeHtml(item.market)}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <div class="small">${escapeHtml(item.priceText)}</div>
+        <button onclick="selectCrop('${escapeJs(item.commodity)}')">View</button>
+      </div>`;
+    el.appendChild(row);
+  });
+}
+
+function selectCrop(name) {
+  const item = cropIndex[name];
+  if(!item) return;
+  document.getElementById('dCrop').innerText = name;
+  document.getElementById('dMarket').innerText = item.market || '—';
+  document.getElementById('dPrice').innerText = item.priceText || '—';
+  document.getElementById('dDate').innerText = 'Updated: ' + (new Date().toLocaleDateString());
+  drawMockTrend(name);
+}
+
+// Draw a mock 7-day trend (replace with real series when server returns timeseries)
+function drawMockTrend(name){
+  const labels = [];
+  const data = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    labels.push((d.getMonth()+1)+'/'+d.getDate());
+    // generate pseudo-random but stable values per crop
+    const base = Math.abs(hashCode(name)) % 50 + 20;
+    data.push(Math.round(base + (Math.sin(labels.length)*5) + (Math.random()*6-3)));
+  }
+  if (chart) chart.destroy();
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: name + ' — last 7 days',
+        data,
+        fill: true,
+        backgroundColor: 'rgba(27,122,43,0.12)',
+        borderColor: '#1b7a2b',
+        tension: 0.25,
+        pointRadius: 3
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display:false } } }
+  });
+}
+
+// Small utilities
+function escapeHtml(s){ return (s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeJs(s){ return (s||'').replace(/'/g,"\\'").replace(/\"/g,'\\\"'); }
+function hashCode(str){ let h=0; for(let i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i); h|=0;} return h; }
+
+// language + TTS
+function setLanguage(lang){
+  currentLang = lang;
+  if(lang==='ta'){
+    document.querySelector('.title').innerText = 'தினசரி சந்தை விலைகள் — தமிழ்நாடு';
+    document.querySelector('p').innerText = 'கீழிருந்து பயிரை தேர்ந்தெடுத்து அண்மைய விலையில் மற்றும் கடந்த 7 நாட்கள் போக்குகளைப் பார்க்கவும்.';
+    document.querySelector('#dCrop').innerText = 'பயிரை தேர்ந்தெடுக்கவும்';
+    // ... further translations can be added
+  } else {
+    location.reload();
+  }
+}
+
+function speakPage(){
+  const text = `This page shows latest official mandi prices for Tamil Nadu. Select a crop to see today's price and a seven day trend. Prices are fetched daily from official market data sources.`;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-IN';
+  window.speechSynthesis.speak(u);
+}
+
+// open source page in new tab
+function openAgriSource(){
+  window.open('https://agmarknet.gov.in', '_blank');
+}
+
+// init
+loadPrices();
+</script>
+</body>
+</html>

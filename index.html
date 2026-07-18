@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PASUMAI PETTAGAM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>PASUMAI PETTAGAM</h1>
+        <p>Direct market access for farmers</p>
+
+        <div class="login-form">
+            <input type="text" id="name" placeholder="Name">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login / Sign Up</button>
+            <button onclick="loginGoogle()">Login with Google</button>
+            <p id="message"></p>
+        </div>
+
+        <div id="homePage" class="hidden">
+            <h2>Welcome to PASUMAI PETTAGAM!</h2>
+            <p>This is your homepage. Farmers and buyers can connect directly here.</p>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

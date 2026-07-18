@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Buyer Home - Pasumai Pettagam</title>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg:#f6fbf6;
+      --panel:#ffffff;
+      --accent:#2e7d32;
+      --muted:#6b8e74;
+      --gold:#D4AF37;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter, Poppins, Arial, sans-serif; background:var(--bg); color:#0b3b25;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* HEADER */
+    header.app-header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 20px; background:linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+      border-bottom:1px solid rgba(0,0,0,0.04); position:sticky; top:0; z-index:30;
+    }
+    .brand { display:flex; align-items:center; gap:14px; }
+    .brand img { width:110px; height:auto; display:block; border-radius:8px; box-shadow:0 8px 22px rgba(0,0,0,0.06); }
+    .page-title { font-size:20px; margin:0; font-weight:700; letter-spacing:0.6px; }
+
+    /* top-right tools */
+    .top-tools { display:flex; gap:10px; align-items:center; }
+    .tool-btn{
+      border:0; background:#e9f7ee; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:700; color:var(--accent);
+    }
+    .tool-btn:active{ transform:translateY(1px); }
+
+    /* notification & dropdown */
+    .notif {
+      position:relative;
+      background:var(--panel); border-radius:10px; padding:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); cursor:pointer;
+      display:flex; align-items:center; gap:8px;
+    }
+    .notif .count { position:absolute; top:-6px; right:-6px; background:#e53935; color:#fff; font-size:12px; padding:3px 6px; border-radius:999px; font-weight:800 }
+
+    .notif-dropdown{
+      display:none; position:absolute; right:0; top:40px; background:var(--panel); min-width:320px; padding:10px; border-radius:10px;
+      box-shadow:0 18px 48px rgba(0,0,0,0.12); z-index:80;
+    }
+    .notif-item{ padding:8px; border-radius:8px; margin-bottom:6px; background:linear-gradient(180deg,#fff,#f6fff6); font-size:14px; }
+    .notif-item small{ display:block; color:var(--muted); margin-top:6px; font-size:12px; }
+
+    /* profile circle */
+    .profile-circle { width:42px; height:42px; border-radius:50%; background:#e8ffe9; border:2px solid #3a7f41; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .profile-circle img{ width:65%; height:65%; border-radius:50%; object-fit:cover; }
+
+    /* LAYOUT */
+    .layout { display:grid; grid-template-columns: 1fr 360px; gap:20px; padding:20px; max-width:1200px; margin:18px auto; }
+    @media(max-width:980px){ .layout{ grid-template-columns:1fr; padding:12px } .right-col{ order:2 } }
+
+    /* MAIN PANEL */
+    .panel { background:var(--panel); border-radius:12px; padding:16px; box-shadow:0 12px 30px rgba(0,0,0,0.04); }
+    .stats { display:flex; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+    .stat { flex:1 1 200px; background:linear-gradient(180deg,#fff,#f8fff8); padding:12px; border-radius:10px; text-align:center; }
+    .stat h4{ margin:0; color:var(--muted); font-weight:600 }
+    .stat p{ margin:8px 0 0; font-size:20px; font-weight:800; color:var(--accent) }
+
+    .chart-wrap{ margin-top:10px; }
+    canvas{ width:100% !important; height:260px !important; }
+
+    /* RIGHT COLUMN (News / Prices) */
+    .right-col { display:flex; flex-direction:column; gap:14px; }
+    .news-list{ display:flex; flex-direction:column; gap:10px; max-height:520px; overflow:auto; padding-right:6px; }
+    .news-item{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px; border-radius:10px; background:linear-gradient(180deg,#fff,#fbfff9); border:1px solid rgba(46,125,50,0.04); cursor:pointer; }
+    .news-item strong{ color:var(--accent) }
+    .price { font-weight:800; color:#0b3b25 }
+
+    /* bottom nav */
+    .bottom-nav { position:fixed; left:50%; transform:translateX(-50%); bottom:14px; display:flex; gap:10px; z-index:60; }
+    .bottom-nav .nav-btn{ background:linear-gradient(90deg,#ffffff,#f2fff2); border:1px solid rgba(0,0,0,0.05); padding:12px 16px; border-radius:12px; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,0.08); font-weight:700; }
+
+    /* modal for crop details */
+    .modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(6,26,12,0.45); z-index:120; }
+    .modal.show{ display:flex; }
+    .modal-card{ width:92%; max-width:920px; background:#fff; border-radius:12px; padding:18px; box-shadow:0 30px 80px rgba(0,0,0,0.3); }
+
+    /* small helpers */
+    .muted { color:var(--muted) }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <img src="images/dt  logo.png" alt="Pasumai Pettagam Logo">
+      <div>
+        <div class="page-title">Buyer Dashboard</div>
+        <div class="muted" style="font-size:13px">Shop, shortlist & chat with farmers</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <!-- notification -->
+      <div style="position:relative;">
+        <div class="notif" id="notifBtn" onclick="toggleNotif()">
+          🔔 <span style="margin-left:6px">Notifications</span>
+          <span class="count" id="notifCount">3</span>
+        </div>
+        <div class="notif-dropdown" id="notifDropdown" aria-hidden="true"></div>
+      </div>
+
+      <!-- language / speak -->
+      <div class="top-tools">
+        <button class="tool-btn" onclick="setLanguage('en')">EN</button>
+        <button class="tool-btn" onclick="setLanguage('ta')">TA</button>
+        <button class="tool-btn" onclick="speakPage()">🔊 Speak</button>
+      </div>
+
+      <!-- small profile -->
+      <div class="profile-circle" onclick="openProfileMenu()">
+        <img src="images/profile.jpg" alt="profile">
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- MAIN -->
+    <main class="panel">
+      <div class="stats">
+        <div class="stat">
+          <h4>Shortlisted</h4>
+          <p id="statShort">3</p>
+        </div>
+        <div class="stat">
+          <h4>Orders</h4>
+          <p id="statOrders">2</p>
+        </div>
+        <div class="stat">
+          <h4>Saved Items</h4>
+          <p id="statSaved">5</p>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:12px;">
+        <h3 style="margin:6px 0 8px 0">Market Price Trend (Selected crop)</h3>
+        <div class="chart-wrap">
+          <canvas id="mainChart"></canvas>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+          <button class="tool-btn" onclick="openShop()">Shop Now</button>
+          <button class="tool-btn" onclick="openChat()">Chat with Farmers</button>
+          <button class="tool-btn" onclick="openSubscriptions()">Subscription Plans</button>
+          <button class="tool-btn" onclick="openHelp()">Help</button>
+          <button class="tool-btn" onclick="openTrackOrder()">Track Order</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT COLUMN: NEWS / PRICES -->
+    <aside class="right-col">
+      <div class="panel">
+        <h3 style="margin:0 0 8px 0">Live Crop Prices</h3>
+        <div class="muted" style="font-size:13px;margin-bottom:8px">Prices auto-update (demo). Click a crop to view 7-day trend.</div>
+        <div class="news-list" id="newsList" aria-live="polite"></div>
+      </div>
+
+      <div class="panel">
+        <h3 style="margin:0 0 8px 0">Latest News</h3>
+        <div class="muted" style="font-size:13px">Agriculture updates and government notices.</div>
+        <ul style="margin-top:10px;padding-left:16px;">
+          <li>Storage subsidy scheme announced</li>
+          <li>New cold chain support pilot</li>
+          <li>Meteorological advisory for heavy rain</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <!-- bottom nav -->
+  <div class="bottom-nav" role="navigation" aria-label="bottom nav">
+    <button class="nav-btn" onclick="openChat()">Chat with Farmers</button>
+    <button class="nav-btn" onclick="openShop()">Shop Now</button>
+    <button class="nav-btn" onclick="openSubscriptions()">Subscription Plans</button>
+    <button class="nav-btn" onclick="openHelp()">Help</button>
+    <button class="nav-btn" onclick="openTrackOrder()">Track Order</button>
+  </div>
+
+  <!-- modal crop detail -->
+  <div id="modal" class="modal" onclick="if(event.target===this) closeModal()">
+    <div class="modal-card" role="dialog" aria-modal="true" id="modalCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 id="modalTitle">Crop Details</h3>
+        <button class="tool-btn" onclick="closeModal()">Close</button>
+      </div>
+      <p id="modalSubtitle" class="muted" style="margin-top:6px"></p>
+      <div style="margin-top:12px;">
+        <canvas id="modalChart" height="180"></canvas>
+      </div>
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="tool-btn" onclick="addToShortlist()">Shortlist Farmer</button>
+        <button class="tool-btn" onclick="createOrder()">Create Order</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ==========================
+   Demo data & initialization
+   ========================== */
+
+const crops = [
+  { id:'tomato', name:'Tomato', price: 42, unit:'₹/kg' },
+  { id:'onion', name:'Onion', price: 34, unit:'₹/kg' },
+  { id:'potato', name:'Potato', price: 28, unit:'₹/kg' },
+  { id:'banana', name:'Banana', price: 50, unit:'₹/dozen' },
+  { id:'carrot', name:'Carrot', price: 30, unit:'₹/kg' }
+];
+
+// prepare news list
+const newsListEl = document.getElementById('newsList');
+
+// Chart.js main chart
+let mainChart = null;
+function initMainChart() {
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  mainChart = new Chart(ctx, {
+    type:'line',
+    data: {
+      labels: generateRecentLabels(7),
+      datasets: [{
+        label: 'Average price',
+        data: Array.from({length:7}, ()=>getRandomAround(35)),
+        borderColor:'#2d6a4f',
+        backgroundColor:'rgba(45,106,79,0.06)',
+        tension:0.3,
+        fill:true
+      }]
+    },
+    options: { responsive:true, interaction:{mode:'index'}, plugins:{legend:{display:false}} }
+  });
+}
+initMainChart();
+
+/* modal chart */
+let modalChart = null;
+function initModalChart(labels, data) {
+  const ctx = document.getElementById('modalChart').getContext('2d');
+  if(modalChart) modalChart.destroy();
+  modalChart = new Chart(ctx, {
+    type:'line',
+    data: { labels, datasets:[{ label:'Price', data, borderColor:'#f39c12', backgroundColor:'rgba(243,156,18,0.06)', tension:0.3, fill:true }]}
+  });
+}
+
+/* utility helpers */
+function generateRecentLabels(days){
+  const labels=[];
+  for(let i=days-1;i>=0;i--){
+    const d = new Date(Date.now() - i*86400000);
+    labels.push(d.toLocaleDateString(undefined,{month:'short', day:'numeric'}));
+  }
+  return labels;
+}
+function getRandomAround(base){ return Math.round(base + (Math.random()-0.5)*6); }
+
+/* render news list and update prices dynamically */
+function renderNewsList(){
+  newsListEl.innerHTML='';
+  crops.forEach(c=>{
+    const el = document.createElement('div');
+    el.className='news-item';
+    el.dataset.id = c.id;
+    el.innerHTML = `<div>
+        <strong>${c.name}</strong>
+        <div class="muted" style="font-size:12px">Click for details</div>
+      </div>
+      <div style="text-align:right">
+        <div class="price" id="price-${c.id}">${c.price} ${c.unit}</div>
+        <div class="muted" style="font-size:12px" id="delta-${c.id}">—</div>
+      </div>`;
+    el.onclick = ()=>openCropModal(c.id);
+    newsListEl.appendChild(el);
+  });
+}
+renderNewsList();
+
+/* simulate live price updates every second (demo) */
+function updatePricesContinuously(){
+  setInterval(()=>{
+    crops.forEach(c=>{
+      const change = Math.round((Math.random()-0.45)*2);
+      const old = c.price;
+      c.price = Math.max(1, c.price + change);
+      const delta = c.price - old;
+      const deltaEl = document.getElementById(`delta-${c.id}`);
+      const priceEl = document.getElementById(`price-${c.id}`);
+      if(priceEl) priceEl.innerText = `${c.price} ${c.unit}`;
+      if(deltaEl){
+        if(delta>0) deltaEl.innerText = `▲ +${delta}`;
+        else if(delta<0) deltaEl.innerText = `▼ ${delta}`;
+        else deltaEl.innerText = `—`;
+      }
+    });
+    if(mainChart){
+      const lastVal = crops[0].price;
+      const data = mainChart.data.datasets[0].data;
+      data.shift(); data.push(lastVal);
+      mainChart.update('none');
+    }
+  }, 1000);
+}
+updatePricesContinuously();
+
+/* ==========================
+   Modal / Crop details
+   ========================== */
+function openCropModal(id){
+  const crop = crops.find(x=>x.id===id);
+  if(!crop) return;
+  document.getElementById('modalTitle').innerText = crop.name + ' — Prices';
+  document.getElementById('modalSubtitle').innerText = `Current: ${crop.price} ${crop.unit} • Click Shortlist or Create Order`;
+  const past = Array.from({length:7}, (_,i)=> Math.max(1, crop.price + Math.round((Math.random()-0.5)*6) ));
+  initModalChart(generateRecentLabels(7), past);
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+function addToShortlist(){ alert('Farmer added to shortlisted (demo)'); }
+function createOrder(){ alert('Order created (demo). In production this will open payment/order form.'); }
+
+/* ==========================
+   Notifications
+   ========================== */
+const notifDropdown = document.getElementById('notifDropdown');
+function toggleNotif(){
+  const showing = notifDropdown.style.display === 'block';
+  notifDropdown.style.display = showing ? 'none' : 'block';
+  if(!showing) populateNotifs();
+}
+function populateNotifs(){
+  const demo = [
+    {t:'New message from Farmer Ravi', when:'5m ago'},
+    {t:'Tomato price increased 8%', when:'10m ago'},
+    {t:'Subscription plan: Premium available', when:'1d ago'}
+  ];
+  notifDropdown.innerHTML = demo.map(n=>`<div class="notif-item"><strong>${n.t}</strong><small>${n.when}</small></div>`).join('') +
+    `<div style="text-align:right;margin-top:8px"><button class="tool-btn" onclick="clearNotifs()">Clear</button></div>`;
+}
+function clearNotifs(){ notifDropdown.innerHTML='<div class="muted">No notifications</div>'; document.getElementById('notifCount').innerText='0'; }
+
+/* ==========================
+   Bottom nav actions / utilities
+   ========================== */
+function openChat(){ location.href = 'buyer_chat_with_farmers.html'; }
+function openShop(){ location.href = 'buyer_shop_now.html'; }
+function openSubscriptions(){ location.href = 'buyer_subscription_plans.html'; }
+function openHelp(){ location.href = 'buyer_help.html'; }
+function openTrackOrder(){ location.href = 'buyer_trackorder.html'; } // new button
+function openProfileMenu(){ 
+  const html = `<div style="padding:8px;"><button class="tool-btn" onclick="location.href='buyer_profile.html'">Account</button>
+    <button class="tool-btn" style="margin-left:6px" onclick="location.href='buyer_settings.html'">Settings</button>
+    <button class="tool-btn" style="margin-left:6px" onclick="location.href='login.html'">Logout</button></div>`;
+  const popup = document.createElement('div');
+  popup.style.position='fixed'; popup.style.right='18px'; popup.style.top='66px'; popup.style.zIndex='200';
+  popup.style.background='#fff'; popup.style.padding='8px'; popup.style.borderRadius='8px'; popup.style.boxShadow='0 12px 30px rgba(0,0,0,0.12)';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+  setTimeout(()=> document.addEventListener('click', function _h(){ popup.remove(); document.removeEventListener('click', _h); }), 10);
+}
+
+/* ==========================
+   Translation & Speech
+   ========================== */
+const LANG = {
+  en: { buyHomeTitle:'Buyer Dashboard', speakerMsgHome:'This is the buyer home page. Use Shop Now to purchase crops, Chat with Farmers to message sellers, Subscription Plans to view options, Track Order to track orders, and Help for assistance.' },
+  ta: { buyHomeTitle:'வாங்குநர் தளம்', speakerMsgHome:'இது வாங்குநர் முகப்பு பக்கம். இங்கு பயிர்களை வாங்க Shop Now, விவசாயிகளுடன் பேச Chat, சந்தா திட்டங்கள் Subscription இல் காணலாம், Track Order மூலம் உங்கள் ஆர்டர்களை பின்தொடரவும்.' }
+};
+let currentLang = 'en';
+function setLanguage(lang){
+  currentLang = lang;
+  document.querySelector('.page-title').innerText = LANG[lang].buyHomeTitle || 'Buyer Dashboard';
+}
+function speakPage(){
+  const text = LANG[currentLang].speakerMsgHome || LANG.en.speakerMsgHome;
+  const ut = new SpeechSynthesisUtterance(text);
+  ut.lang = currentLang === 'ta' ? 'ta-IN' : 'en-US';
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(ut);
+}
+/* ==========================
+   Main buttons / Bottom nav
+   ========================== */
+function openChat(){ 
+    location.href = 'chat_system/buyer_chat_with_farmers.html'; 
+}
+function openShop(){ 
+    location.href = 'buyer_pages/buyer_shop_now.html'; 
+}
+function openSubscriptions(){ 
+    location.href = 'buyer_pages/buyer_subscription_plans.html'; 
+}
+function openHelp(){ 
+    location.href = 'buyer_pages/buyer_help.html'; 
+}
+function openTrackOrder(){ 
+    location.href = 'buyer_pages/buyer_trackorder.html'; 
+}
+
+/* ==========================
+   Profile menu buttons
+   ========================== */
+function openProfileMenu(){ 
+  const html = `<div style="padding:8px;">
+      <button class="tool-btn" onclick="location.href='buyer_pages/buyer_profile.html'">Account</button>
+      <button class="tool-btn" style="margin-left:6px" onclick="location.href='buyer_pages/buyer_settings.html'">Settings</button>
+      <button class="tool-btn" style="margin-left:6px" onclick="location.href='login.html'">Logout</button>
+    </div>`;
+
+  const popup = document.createElement('div');
+  popup.style.position='fixed'; 
+  popup.style.right='18px'; 
+  popup.style.top='66px'; 
+  popup.style.zIndex='200';
+  popup.style.background='#fff'; 
+  popup.style.padding='8px'; 
+  popup.style.borderRadius='8px'; 
+  popup.style.boxShadow='0 12px 30px rgba(0,0,0,0.12)';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  setTimeout(()=> document.addEventListener('click', function _h(){ 
+    popup.remove(); 
+    document.removeEventListener('click', _h); 
+  }), 10);
+}
+
+/* ==========================
+   Notification button
+   ========================== */
+document.getElementById('notifBtn').onclick = function(){
+    location.href = 'buyer_pages/buyer_notifications.html';
+}
+</script>
+</body>
+</html>

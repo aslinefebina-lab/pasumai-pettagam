@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Stockist Dashboard — Pasumai Pettagam</title>
+
+<!-- Google font + Chart.js -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+  :root{
+    --green-900:#0f5132;
+    --green-700:#2d6a4f;
+    --green-500:#52b788;
+    --bg1:#eaf7ee;
+    --card:#ffffff;
+    --muted:#6b8e74;
+    --gold:#D4AF37;
+    --glass: rgba(255,255,255,0.7);
+    --accent: #1b6f2d;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0; font-family:"Poppins",system-ui,Arial; color:#103b2b; background:linear-gradient(180deg,#e9f7ef 0%, #f6fff9 100%);}
+  a{color:inherit; text-decoration:none}
+
+  /* layout grid */
+  .app { display:grid; grid-template-columns: 240px 1fr; min-height:100vh; gap:0; }
+
+  /* sidebar */
+  .sidebar {
+    background: linear-gradient(180deg,var(--green-700), var(--green-500));
+    color: white;
+    padding: 22px 18px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .brand { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .brand img{width:54px; height:54px; border-radius:10px; object-fit:cover; border:2px solid rgba(255,255,255,0.12)}
+  .brand h3{font-size:16px; margin:0; font-weight:700; letter-spacing:0.6px}
+  .brand .sub{font-size:12px; opacity:.95}
+
+  .nav { margin-top:6px; display:flex; flex-direction:column; gap:8px; }
+  .nav a{
+    display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; color:white;
+    transition:background .16s, transform .12s;
+    font-weight:600; font-size:14px;
+  }
+  .nav a:hover{background:rgba(255,255,255,0.06); transform:translateX(6px)}
+  .nav a.active{background:rgba(0,0,0,0.14)}
+
+  .sidebar .spacer{flex:1}
+  .sidebar small{opacity:.9; font-size:13px}
+
+  /* main */
+  .main { padding: 18px 22px; min-height:100vh; overflow:auto; }
+
+  /* topbar */
+  .topbar { display:flex; gap:18px; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .top-left { display:flex; gap:18px; align-items:center; min-width:220px; }
+  .site-title { font-weight:800; color:var(--green-900); font-size:14px; letter-spacing:.6px; }
+  .site-sub { font-size:12px; color:var(--muted); }
+
+  .searchbox{ display:flex; align-items:center; gap:8px; background:var(--card); padding:8px; border-radius:999px; box-shadow:0 6px 18px rgba(16,59,40,0.06); width: 100%; max-width:760px; }
+  .searchbox input{ border:0; outline:none; font-size:15px; padding:8px; background:transparent; width:100%; }
+  .icon-btn{ display:inline-flex; align-items:center; justify-content:center; border-radius:8px; padding:8px; cursor:pointer; background:transparent; border:0; font-size:16px; }
+
+  .top-right { display:flex; align-items:center; gap:12px; }
+  .notif { position:relative; cursor:pointer; background:var(--card); padding:8px 10px; border-radius:12px; box-shadow:0 6px 14px rgba(16,59,40,0.06) }
+  .notif .count { position:absolute; top:-6px; right:-6px; background:#e53935; color:white; font-size:12px; padding:3px 6px; border-radius:999px; font-weight:700 }
+  .profile { display:flex; align-items:center; gap:8px; cursor:pointer; position:relative; }
+  .profile img{ width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid #fff }
+
+  .profile-menu { position:absolute; right:0; top:62px; background:var(--card); border-radius:8px; box-shadow:0 8px 26px rgba(0,0,0,0.12); display:none; min-width:200px; overflow:hidden; z-index:40; }
+  .profile-menu a{display:block; padding:10px 12px; color:#103b2b; border-bottom:1px solid #f0f3f0}
+  .profile-menu a:last-child{border-bottom:none}
+  .profile-menu a:hover{background:#f3f7f3}
+
+  /* welcome */
+  .welcome { display:flex; align-items:center; gap:18px; margin-bottom:18px; justify-content:space-between; }
+  .welcome-left { display:flex; gap:14px; align-items:center; }
+  .avatar { width:72px; height:72px; border-radius:12px; object-fit:cover; border:4px solid #fff; box-shadow:0 8px 20px rgba(16,59,40,0.06) }
+
+  .welcome h2{ margin:0; font-size:20px }
+  .tagline { color:var(--gold); font-weight:600; font-size:14px }
+
+  /* cards */
+  .cards { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:20px; }
+  .card { background:var(--card); border-radius:12px; padding:16px; box-shadow:0 10px 24px rgba(16,59,40,0.06); transition:transform .16s; }
+  .card:hover { transform:translateY(-6px) }
+  .card h3{ margin:0 0 8px 0; font-size:15px; color:var(--green-900); }
+  .card p{ margin:0; color:var(--muted); font-size:13px }
+
+  /* two-col */
+  .two-col { display:grid; grid-template-columns: 1fr 360px; gap:18px; margin-bottom:22px; align-items:start; }
+  .news, .panel { background:var(--card); padding:14px; border-radius:12px; box-shadow:0 8px 20px rgba(16,59,40,0.05); }
+  .news-item{ padding:12px; border-radius:10px; background:linear-gradient(180deg,#f6fffb, #f1fff7); margin-bottom:10px }
+
+  /* inventory table */
+  .inventory { overflow:auto; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #eef6ee }
+  th { background:#f5fbf6; cursor:pointer; }
+  .inv-controls { display:flex; gap:8px; align-items:center; margin-bottom:10px }
+
+  /* chart box */
+  .chart-box { padding:10px; border-radius:10px; background:linear-gradient(180deg,#fff,#fbfff9) }
+
+  .footer-note { text-align:center; color:#35664b; margin-top:32px; font-size:13px }
+
+  @media (max-width: 980px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { flex-direction:row; gap:8px; padding:10px; height:auto; position:static; overflow:auto; }
+    .two-col { grid-template-columns: 1fr; }
+    .profile-menu { right:10px; top:56px; }
+    .welcome { flex-direction:column; align-items:flex-start; gap:12px; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- SIDEBAR --> <aside class="sidebar" aria-label="Sidebar navigation"> 
+      <div class="brand"> <img src="images/dt  logo.png" alt="logo"> <div> 
+        <h3>PASUMAI PETTAGAM</h3> <div class="sub">Stockist Dashboard</div> </div> </div> <nav class="nav" aria-label="Primary"> <a href="#" class="active" data-page="dashboard">Dashboard</a> <a href="#" data-page="inventory">Inventory</a> <a href="#" data-page="requests">Requests</a> <a href="#" data-page="buyers">Buyers</a> <a href="#" data-page="logistics">Logistics</a> <a href="#" data-page="payments">Payments</a> <a href="#" data-page="support">Support</a> </nav>
+
+      <div class="spacer"></div>
+
+      <div style="font-size:13px; opacity:.95">
+        <div style="margin-bottom:6px">Hello, <strong>Stockist</strong></div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.9)">Last login: 2 days ago</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="top-left">
+          <div style="min-width:220px">
+            <div class="site-title">PASUMAI PETTAGAM</div>
+            <div class="site-sub">Stockist Portal</div>
+          </div>
+
+          <div class="searchbox" style="flex:1">
+            <input id="searchInput" placeholder="Search inventory, prices, buyers..." />
+            <button id="voiceBtn" class="icon-btn" title="Voice search">🎤</button>
+            <button id="searchBtn" class="icon-btn" title="Search">🔍</button>
+          </div>
+        </div>
+
+        <div class="top-right">
+          <button id="darkToggle" class="icon-btn" title="Toggle dark">🌙</button>
+          <button id="notifBtn" class="tool-btn" onclick="window.location.href='stockist_pages/stockist_notifications.html'">🔔</button>
+
+
+          <div class="profile" id="profileBtn" title="Profile">
+            <img src="images/profile.jpg" alt="profile">
+            <div style="display:flex; flex-direction:column; text-align:left; font-size:13px;">
+              <strong style="font-size:13px">Your Name</strong>
+              <span style="font-size:12px; color:var(--muted)">Stockist</span>
+            </div>
+            <div id="profileMenu" class="profile-menu">
+    <a href="stockist_pages/stockist_profile.html">My Account</a>
+    <a href="stockist_pages/stockist_settings.html">Settings</a>
+    <a href="login.html">Logout</a> </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Welcome -->
+      <div class="welcome">
+        <div class="welcome-left">
+          <img class="avatar" src="images/avatar_stockist.png" alt="avatar">
+          <div>
+            <h2>Welcome back — Manage your stock efficiently</h2>
+            <div class="tagline">Where every harvest finds its worth</div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button id="exportBtn" class="icon-btn" style="background:var(--green-700); color:white; padding:10px 14px; border-radius:10px">Export CSV</button>
+          <button id="reportsBtn" class="icon-btn" style="background:var(--green-500); color:white; padding:10px 14px; border-radius:10px">Generate Report</button>
+        </div>
+      </div>
+
+<section class="cards" aria-label="Quick actions"> 
+  <div class="card"><h3>My Inventory</h3><p>View and manage all products currently available.</p></div> 
+  <div class="card"><h3>Add New Stock</h3><p>Upload new stock details (images, qty, price).</p></div> 
+  <div class="card"><h3>Incoming Requests</h3><p>Approve or decline orders and requests.</p></div> 
+  <div class="card"><h3>Approved Buyers</h3><p>Manage buyer accounts and agreements.</p></div> 
+  <div class="card"><h3>Price Trends</h3><p>View market price movement with charts.</p></div> 
+  <div class="card"><h3>Logistics</h3><p>Track shipments, trucks and warehouses.</p></div> 
+  <div class="card"><h3>Shop Now</h3><p>shop the crops you need.</p></div> 
+  <div class="card"><h3>Support</h3><p>Contact our support or view docs.</p></div> 
+  <div class="card"><h3>Chat With Farmers</h3><p>chat with the farmers</p></div> 
+  <div class="card"><h3>Track The Orders</h3><p>track your orders</p></div> 
+</section>
+  <style>
+
+  /* make the link wrap look like your card and preserve hover */
+  .card-link { text-decoration: none; color: inherit; display:block; }
+  .card-link .card { cursor: pointer; }
+  .card-link:focus { outline: 3px solid rgba(33,150,83,0.18); border-radius:10px; }
+</style>
+
+      <!-- Two-column: inventory/chart and news -->
+      <section class="two-col">
+        <!-- left: inventory + chart -->
+        <div>
+          <!-- inventory controls -->
+          <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <h3 style="margin:0">Inventory Overview</h3>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input id="invFilter" placeholder="Filter product..." style="padding:8px; border-radius:8px; border:1px solid #e6efe8" />
+                <button id="addStockBtn" style="background:var(--green-700); color:white; padding:8px 10px; border-radius:8px; border:0; cursor:pointer">+ Add Stock</button>
+              </div>
+            </div>
+
+            <div class="inventory">
+              <table id="invTable">
+                <thead>
+                  <tr>
+                    <th data-key="product">Product</th>
+                    <th data-key="qty">Quantity</th>
+                    <th data-key="price">Price (₹/kg)</th>
+                    <th data-key="action">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="invBody">
+                  <tr><td>Tomato</td><td>350</td><td>42</td><td><button class="icon-btn viewBtn">View</button></td></tr>
+                  <tr><td>Onion</td><td>500</td><td>34</td><td><button class="icon-btn viewBtn">View</button></td></tr>
+                  <tr><td>Potato</td><td>200</td><td>28</td><td><button class="icon-btn viewBtn">View</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- price trend chart -->
+          <div style="margin-top:18px" class="card chart-box">
+            <h3 style="margin-top:0">Market Price Trend</h3>
+            <canvas id="priceChart" height="140" style="width:100%"></canvas>
+          </div>
+        </div>
+
+        <!-- right: news & announcements -->
+        <aside>
+          <div class="news">
+            <h3>Latest Market News</h3>
+            <div class="news-item"><strong>Tomato Prices Rise by 12%</strong><div style="opacity:.9; margin-top:6px">Due to heavy rainfall, tomato supply dropped causing price hike.</div></div>
+            <div class="news-item"><strong>New Storage Subsidy Scheme</strong><div style="opacity:.9; margin-top:6px">Government announces subsidy for rural cold storage facilities.</div></div>
+            <div class="news-item"><strong>Onion Export Ban Lifted</strong><div style="opacity:.9; margin-top:6px">Export ban on onions removed effective immediately.</div></div>
+          </div>
+
+          <div class="panel" style="margin-top:12px">
+            <h3>Announcements</h3>
+            <div style="padding:10px; background:#fffbe6; border-radius:8px">🔔 Scheduled maintenance on 17th Nov 12AM–2AM.</div>
+            <div style="padding:10px; background:#f0fff3; border-radius:8px; margin-top:8px">📦 New warehouse syncing feature added.</div>
+          </div>
+        </aside>
+      </section>
+
+      <div class="footer-note">© 2025 Pasumai Pettagam • Built with care for farmers, stockists & buyers</div>
+
+    </main>
+
+  </div>
+
+<script>
+  // -------------------------
+  // Interactivity scripts
+  // -------------------------
+
+  // Profile menu toggle
+  const profileBtn = document.getElementById('profileBtn');
+  const profileMenu = document.getElementById('profileMenu');
+  profileBtn && profileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+  });
+  document.addEventListener('click', () => profileMenu && (profileMenu.style.display='none'));
+
+  // Dark mode toggle
+  const darkToggle = document.getElementById('darkToggle');
+  darkToggle && darkToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+  });
+
+  // Inventory search filter
+  const invFilter = document.getElementById('invFilter');
+  invFilter && invFilter.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#invBody tr').forEach(tr => {
+      tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // Table column sorting
+  document.querySelectorAll('#invTable th').forEach((th, i) => {
+    th.addEventListener('click', () => {
+      const tbody = document.getElementById('invBody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const key = th.dataset.key;
+      const asc = th.dataset.asc !== 'true';
+      rows.sort((a,b) => {
+        const aVal = a.children[i].innerText.trim();
+        const bVal = b.children[i].innerText.trim();
+        if (key === 'qty' || key === 'price') return asc ? (Number(aVal) - Number(bVal)) : (Number(bVal) - Number(aVal));
+        return asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      });
+      rows.forEach(r => tbody.appendChild(r));
+      th.dataset.asc = asc;
+    });
+  });
+
+  // Chart.js price chart (demo data)
+  const ctx = document.getElementById('priceChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        datasets: [
+          { label: 'Tomato (₹/kg)', data:[34,36,38,37,39,42,41], borderColor:'#2d6a4f', backgroundColor:'rgba(45,106,79,0.06)', fill:true, tension:0.3, pointRadius:3 },
+          { label: 'Onion (₹/kg)', data:[30,31,30,32,33,34,33], borderColor:'#f39c12', backgroundColor:'rgba(243,156,18,0.06)', fill:true, tension:0.3, pointRadius:3 }
+        ]
+      },
+      options: {
+        responsive:true,
+        plugins:{ legend:{ position:'top' } },
+        scales: { y:{ beginAtZero:false } }
+      }
+    });
+  }
+
+  // Voice recognition for search (Chrome)
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const voiceBtn = document.getElementById('voiceBtn');
+  const searchInput = document.getElementById('searchInput');
+
+  if (!SpeechRecognition) {
+    voiceBtn && (voiceBtn.disabled = true);
+  } else {
+    const recog = new SpeechRecognition();
+    recog.lang = 'en-IN';
+    recog.interimResults = false;
+    voiceBtn && voiceBtn.addEventListener('click', () => {
+      try { recog.start(); } catch(e){}
+    });
+    recog.addEventListener('result', (e) => {
+      const t = e.results[0][0].transcript;
+      searchInput.value = t;
+    });
+  }
+
+  // Search action (demo)
+  const searchBtn = document.getElementById('searchBtn');
+  searchBtn && searchBtn.addEventListener('click', () => {
+    const q = (searchInput.value||'').toLowerCase().trim();
+    if (!q) { alert('Please enter a search term'); return; }
+    let found = false;
+    document.querySelectorAll('#invBody tr').forEach(tr => {
+      const match = tr.innerText.toLowerCase().includes(q);
+      tr.style.display = match ? '' : 'none';
+      found = found || match;
+    });
+    if (!found) alert('No matching inventory found (demo).');
+  });
+
+  // Notification demo
+  const notifBtn = document.getElementById('notifBtn');
+  const notifCount = document.getElementById('notifCount');
+  notifBtn && notifBtn.addEventListener('click', () => {
+    notifCount.innerText = '0';
+    notifBtn.style.opacity = '.6';
+    alert('Notifications cleared (demo).');
+  });
+
+  // Add Stock demo (prompt)
+  const addStockBtn = document.getElementById('addStockBtn');
+  addStockBtn && addStockBtn.addEventListener('click', () => {
+    const name = prompt('New product name (demo):');
+    const qty = prompt('Quantity (kg):');
+    const price = prompt('Price (₹/kg):');
+    if (name && qty && price) {
+      const tbody = document.getElementById('invBody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${name}</td><td>${qty}</td><td>${price}</td><td><button class="icon-btn viewBtn">View</button></td>`;
+      tbody.appendChild(tr);
+    }
+  });
+
+  // Profile menu keyboard & safety
+  window.addEventListener('resize', () => profileMenu && (profileMenu.style.display='none'));
+
+  // View button demo: opens detail modal (simple)
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.classList.contains('viewBtn')) {
+      const row = e.target.closest('tr');
+      const name = row.children[0].innerText;
+      const qty = row.children[1].innerText;
+      const price = row.children[2].innerText;
+      alert(`Product: ${name}\nQty: ${qty} kg\nPrice: ₹${price}/kg\n\n(This is a demo view. Link to product page or edit modal in production.)`);
+    }
+  });
+
+  // Demo export / report
+  document.getElementById('exportBtn') && document.getElementById('exportBtn').addEventListener('click', () => {
+    alert('Export CSV (demo). In production, the server should generate & download CSV.');
+  });
+  document.getElementById('reportsBtn') && document.getElementById('reportsBtn').addEventListener('click', () => {
+    alert('Generating report (demo).');
+  });
+
+  // small helper: nav highlighting (single-page demo)
+  document.querySelectorAll('.nav a').forEach(a => {
+    a.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      document.querySelectorAll('.nav a').forEach(x => x.classList.remove('active'));
+      a.classList.add('active');
+      // in a real app you'd load a page or change view here
+      alert('This navigation is a demo. In production, link these to pages or SPA views.');
+    });
+  });
+</script>
+</body>
+</html>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const cards = document.querySelectorAll(".card");
+
+  cards.forEach(card => {
+    card.addEventListener("click", () => {
+      // Use textContent to avoid whitespace issues
+      const title = card.querySelector("h3").textContent.trim();
+
+      const links = {
+        "My Inventory": "stockist_pages/stockist_inventory.html",
+        "Add New Stock": "stockist_pages/stockist_add_stock.html",
+        "Incoming Requests": "stockist_pages/stockist_incoming_requests.html",
+        "Approved Buyers": "stockist_pages/stockist_approved_buyers.html",
+        "Price Trends": "stockist_pages/stockist_price_trends.html",
+        "Logistics": "stockist_pages/stockist_logistics.html",
+        "Shop Now": "stockist_pages/stockist_payments.html",
+        "Support": "stockist_pages/stockist_support.html",
+        "Notifications": "stockist_pages/stockist_notifications.html",
+        "Profile": "stockist_pages/stockist_profile.html",
+        "Settings": "stockist_pages/stockist_settings.html",
+        "Export CSV": "stockist_pages/stockist_export_csv.html",
+        "Generate Report": "stockist_pages/stockist_generate_report.html",
+        "Chat With Farmers": "chat_system/stockist_chatwithfarmers.html",
+        "Track The Orders": "stockist_pages/stockist_trackorder.html"
+      };
+
+      if (links[title]) {
+        window.location.href = links[title];
+      } else {
+        alert("Error: No link found for " + title);
+      }
+    });
+  });
+
+  // Export CSV button → open the export page
+  const exportBtn = document.getElementById("exportBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", () => {
+      window.location.href = "stockist_pages/stockist_export_csv.html";
+    });
+  }
+
+  // Generate Report button → open report page
+  const reportsBtn = document.getElementById("reportsBtn");
+  if (reportsBtn) {
+    reportsBtn.addEventListener("click", () => {
+      window.location.href = "stockist_pages/stockist_generate_report.html";
+    });
+  }
+});
+</script>

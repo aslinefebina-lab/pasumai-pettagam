@@ -1,0 +1,636 @@
+<!-- Save as farmer_home.html (replace your existing farmer home content) -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pasumai Pettagam — Farmer Home</title>
+
+  <!-- Google font + Chart.js -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --green-900:#0f5132;
+      --green-700:#2d6a4f;
+      --green-500:#52b788;
+      --bg1:#eaf7ee;
+      --card:#ffffff;
+      --muted:#6b8e74;
+      --accent:#f0b429;
+      --glass: rgba(255,255,255,0.75);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Poppins",system-ui,Arial;color:#07341e;background:linear-gradient(180deg,#e9f7ef 0%, #f6fff9 100%);}
+    header{position:sticky;top:0;z-index:1200;padding:18px 12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg, rgba(255,255,255,0.75), rgba(255,255,255,0.5));backdrop-filter: blur(6px);border-bottom:1px solid rgba(15,107,45,0.06)}
+    .header-inner{width:100%;max-width:1200px;display:flex;align-items:center;justify-content:center;position:relative;gap:12px}
+    .logo-wrap{text-align:center}
+    .logo-img{width:86px;height:86px;object-fit:cover;border-radius:12px;box-shadow:0 8px 26px rgba(11,77,35,0.08)}
+    .site-title{font-weight:700;font-size:18px;margin:6px 0 0;text-transform:uppercase;letter-spacing:0.6px;color:var(--green-900)}
+    .site-sub{font-size:13px;color:var(--muted)}
+    .top-right{position:absolute;right:12px;display:flex;gap:10px;align-items:center}
+    .circle-btn{width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--glass);border:1px solid rgba(15,107,45,0.08);cursor:pointer}
+    .icon-btn{background:var(--green-700);color:white;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+    .small-btn{background:white;color:var(--green-700);border:2px solid var(--green-700);padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:700}
+    .wrap{max-width:1200px;margin:18px auto;display:grid;grid-template-columns:1fr 380px;gap:20px;padding:0 12px}
+    @media (max-width:980px){ .wrap{grid-template-columns:1fr} .top-right{position:static;margin-top:10px} .header-inner{justify-content:flex-start;padding-left:12px} }
+
+    /* panels */
+    .panel{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 10px 26px rgba(9,45,23,0.04)}
+    .greeting{display:flex;gap:14px;align-items:center;justify-content:space-between}
+    .avatar{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#fff,#eaf7ea);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green-700);font-size:20px;box-shadow:0 6px 18px rgba(16,59,26,0.05)}
+    .greet-left{display:flex;gap:12px;align-items:center}
+    .greet-head{font-size:20px;margin:0;color:var(--green-900)}
+    .greet-sub{margin:4px 0 0;color:var(--muted)}
+
+    /* grid inside */
+    .two-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:720px){ .two-grid{grid-template-columns:1fr} }
+
+    /* weather box */
+    .weather-controls{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+    .search-input{padding:10px;border-radius:8px;border:1px solid #e6efe6;flex:1}
+    .weather-list{display:flex;gap:8px;overflow:auto}
+    .weather-item{min-width:90px;background:linear-gradient(180deg,#fff,#f8fff8);padding:8px;border-radius:10px;text-align:center;box-shadow:0 6px 18px rgba(16,59,26,0.04)}
+    .weather-day{font-weight:700;color:var(--green-900)}
+    .weather-temp{font-size:14px;color:var(--muted)}
+
+    /* market + chart */
+    .crop-list{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto}
+    .crop-row{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfff9);border:1px solid rgba(10,80,40,0.03)}
+    .crop-name{font-weight:700;color:var(--green-900)}
+    .price-badge{background:var(--accent);padding:6px 8px;border-radius:8px;color:#3b2e00;font-weight:700}
+
+    /* right column news */
+    .news-list{display:flex;flex-direction:column;gap:10px;max-height:520px;overflow:auto}
+    .news-item{padding:10px;border-radius:10px;background:linear-gradient(180deg,#fff,#fffaf0);border:1px solid rgba(200,170,80,0.06)}
+    .news-item h4{margin:0;font-size:15px}
+    .news-item p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    /* nav bar bottom of main */
+    .nav-bar{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .nav-bar .nav-btn{flex:1;min-width:160px;text-align:center;padding:12px;border-radius:10px;background:linear-gradient(90deg,var(--green-700),var(--green-900));color:white;font-weight:700;cursor:pointer;border:0}
+
+    /* modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2200}
+    .modal.show{display:flex}
+    .modal-card{width:95%;max-width:960px;background:white;border-radius:12px;padding:16px;box-shadow:0 24px 70px rgba(6,56,30,0.25)}
+    .close{float:right;cursor:pointer;background:transparent;border:0;font-size:18px}
+
+    /* micro */
+    .muted{color:var(--muted);font-size:13px}
+    .center{text-align:center}
+  </style>
+</head>
+<body>
+
+  <!-- HEADER / TITLE BAR -->
+  <header>
+            
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <img class="logo-img" src="images/dt  logo.png" alt="logo">
+        <div class="site-title">Pasumai Pettagam</div>
+        <div class="site-sub">Welcome to Farmer Home Page</div>
+      </div>
+
+      <div class="top-right" role="toolbar" aria-label="top tools">
+        <!-- notifications -->
+        <div class="circle-btn" id="notifBtn" title="Notifications" aria-haspopup="true" aria-expanded="false"><a href="farmer_pages/farmer_notifications.html">🔔</a>
+</div>
+
+        <!-- small profile circle -->
+        <div style="position:relative;">
+          <div class="circle-btn" id="profileBtn" title="Profile" aria-haspopup="true" aria-expanded="false">
+            <img src="images/profile.jpg" alt="profile" style="width:28px;height:28px;border-radius:50%;object-fit:cover">
+          </div>
+          <div id="profileMenu" style="display:none;position:absolute;right:0;top:52px;background:#fff;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.12);min-width:160px;overflow:hidden">
+            <a href="profile.html" style="display:block;padding:10px 12px;color:#0b3f22;text-decoration:none"><a href="farmer_pages/farmer_profile.html">My Account</a>
+            <a href="settings.html" style="display:block;padding:10px 12px;color:#0b3f22;text-decoration:none"><a href="farmer_pages/farmer_setting.html">Settings</a>
+
+            <a href="login.html" id="logoutLink" style="display:block;padding:10px 12px;color:#b42e2e;text-decoration:none"><a href="login.html">Logout</a>
+
+          </div>
+        </div>
+
+        <!-- language / speak -->
+        <button class="small-btn" id="btn-en">EN</button>
+        <button class="small-btn" id="btn-ta">TA</button>
+        <button class="icon-btn" id="speakBtn" title="Explain page">🔊</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAP -->
+  <div class="wrap">
+
+    <!-- LEFT: main content -->
+    <main>
+      <!-- greeting -->
+      <div class="panel greeting">
+        <div class="greet-left">
+          <div class="avatar" id="avatar">F</div>
+          <div>
+            <div class="greet-head" id="greetHead">Hello, Farmer</div>
+            <div class="greet-sub" id="greetSub">Welcome to your dashboard</div>
+            <div class="muted" id="timeNow"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="icon-btn" id="uploadBtn">Upload Images</button>
+        </div>
+      </div>
+
+      <!-- two column: weather & daily tip -->
+      <div class="two-grid">
+        <!-- Weather panel -->
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div><strong id="weatherTitle">Weather (7-day)</strong><div class="muted">Check weekly forecast and history</div></div>
+            <div class="muted" id="chosenPlace">Using default location</div>
+          </div>
+
+          <div class="weather-controls" role="search">
+            <input id="placeInput" class="search-input" placeholder="Search place (eg. Chennai) and press Enter">
+            <button class="small-btn" id="useLocationBtn">Use my location</button>
+          </div>
+
+          <canvas id="weatherChart" height="140" style="width:100%"></canvas>
+
+          <div class="weather-list" id="weatherBox" aria-live="polite" style="margin-top:10px"></div>
+        </div>
+
+        <!-- Tips / market quick -->
+        <div>
+          <div class="panel" style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><strong id="tipTitle">Daily Crop Tip</strong><div class="muted">One tip per day</div></div>
+              <button class="small-btn" id="tipsArchiveBtn">Archive</button>
+            </div>
+            <div style="margin-top:12px;font-weight:600;font-size:15px" id="dailyTip">Loading tip...</div>
+            <div class="muted" style="margin-top:8px">Tip updates each day automatically.</div>
+          </div>
+
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div><strong>Market Prices (sample)</strong><div class="muted">Tap a crop to view 7-day chart</div></div>
+              <button class="small-btn" id="reloadMarket">Reload</button>
+            </div>
+
+            <div class="crop-list" id="cropList">
+              <!-- crop rows populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Announcements -->
+      <div class="panel" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong>Announcements (Govt schemes & updates)</strong><div class="muted">Live feed from official sources</div></div>
+          <div><button class="small-btn" id="refreshNews">Refresh</button></div>
+        </div>
+
+        <div id="announcements" style="margin-top:10px">
+          <!-- announcements inserted here -->
+        </div>
+
+<!-- bottom nav -->
+<div class="nav-bar" style="margin-top:14px">
+
+    <a class="nav-btn" href="chat_system/farmer_chat_customers.html">Chat with customers</a>
+
+    <a class="nav-btn" href="farmer_pages/farmer_track.html">Track orders</a>
+
+    <a class="nav-btn" href="farmer_pages/farmer_subscription_plans.html">Subscription plans</a>
+
+    <a class="nav-btn" href="farmer_pages/farmer_help.html">Help</a>
+
+    <a class="nav-btn" href="farmer_pages/farmer_orders.html">Orders</a>
+
+</div>
+      </div>
+    </main>
+
+    <!-- RIGHT: news & live feed -->
+    <aside>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong>Latest Farmer News</strong><div class="muted">From official agri portals (live)</div></div>
+          <div><button class="small-btn" id="openMarketModal">Market Price</button></div>
+        </div>
+
+        <div class="news-list" id="newsList" style="margin-top:12px">
+          <!-- news items -->
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+        </div>
+        
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Market modal (chart) and Notifications modal -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="close" id="modalClose">&times;</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+<script>
+/* ---------------------------
+   Minimal single-file logic
+   - Weather: Open-Meteo (no key)
+   - Geocoding: Nominatim (free)
+   - Market Prices: tries live endpoint (configurable) else fallback sample
+   - News/Announcements: tries feed URL (configurable) else sample
+   - Translations EN <-> TA included for UI strings
+   --------------------------- */
+
+/* ---------- config (edit these if you have a working government endpoint or proxy) ---------- */
+// If you have a government JSON endpoint for market prices that supports CORS, set it here.
+// Example: const MARKET_API = 'https://your-proxy.example.com/agmarknet/daily.json'
+const MARKET_API = null; // <--- set to your API URL if available (must allow CORS)
+
+// Official news/announcements JSON or RSS -> you can set a CORS-enabled JSON feed:
+// Example: const NEWS_API = 'https://your-proxy.example.com/tn-agri-news.json'
+const NEWS_API = null; // <--- set to your news feed endpoint if available
+
+/* ---------- helpers ---------- */
+function el(id){ return document.getElementById(id); }
+const now = () => new Date();
+
+/* ---------- user/farm info ---------- */
+const farmerProfile = {
+  name: localStorage.getItem('pf_name') || 'Muthu Kumar',
+  village: localStorage.getItem('pf_village') || 'Tiruchy'
+};
+el('greetHead').innerText = `Hello, ${farmerProfile.name}`;
+el('greetSub').innerText = `${farmerProfile.village} • Farmer Portal`;
+el('avatar').innerText = (farmerProfile.name||'F').split(' ').map(n=>n[0]).slice(0,2).join('');
+
+function updateTime(){
+  el('timeNow').innerText = now().toLocaleString();
+}
+updateTime(); setInterval(updateTime,60000);
+
+/* ---------- translations ---------- */
+let LANG = localStorage.getItem('pf_lang') || 'en';
+const T = {
+  en: {
+    weatherTitle: 'Weather (7-day)',
+    tipTitle: 'Daily Crop Tip',
+    uploadLabel: 'Upload Images',
+    announcementsTitle: 'Announcements (Govt schemes & updates)',
+    marketTitle: 'Market Prices (sample)'
+  },
+  ta: {
+    weatherTitle: 'வானிலை (7-நாள்)',
+    tipTitle: 'தினசரி பயிர் குறிப்புகள்',
+    uploadLabel: 'படங்களை பதிவேற்றவும்',
+    announcementsTitle: 'அறிவிப்புகள் (அரசு திட்டங்கள் மற்றும் மேம்பாடுகள்)',
+    marketTitle: 'சந்தை விலைகள் (மாதிரி)'
+  }
+};
+function setLang(lang){
+  LANG = lang; localStorage.setItem('pf_lang', lang);
+  el('weatherTitle').innerText = T[lang].weatherTitle;
+  el('tipTitle').innerText = T[lang].tipTitle;
+  el('uploadBtn').innerText = T[lang].uploadLabel;
+  // Announcements title handled in DOM static text; you can set if needed
+}
+el('btn-en').addEventListener('click', ()=> setLang('en'));
+el('btn-ta').addEventListener('click', ()=> setLang('ta'));
+setLang(LANG);
+
+/* ---------- speaker (speaks UI in Tamil if Tamil selected) ---------- */
+el('speakBtn').addEventListener('click', () => {
+  const text = (LANG==='ta')
+    ? 'இது விவசாயி ஹோம் பக்கமாகும். இங்கு வானிலை, சந்தை விலை மற்றும் அறிவிப்புகள் காணலாம்.'
+    : 'This is the farmer home page. Here you can see weather, market prices and announcements.';
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = (LANG==='ta') ? 'ta-IN' : 'en-US';
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+});
+
+/* ---------- weather: search (Nominatim) + Open-Meteo forecast ---------- */
+let weatherChart = null;
+async function geocodePlace(q){
+  // Nominatim free geocoding
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`;
+  try{
+    const r = await fetch(url, {headers:{'Accept':'application/json'}}); 
+    const data = await r.json();
+    return data; // array
+  }catch(e){
+    console.error('geocode error',e);
+    return [];
+  }
+}
+
+async function fetchWeatherByLatLon(lat, lon){
+  try{
+    el('chosenPlace').innerText = `Lat ${lat.toFixed(3)}, Lon ${lon.toFixed(3)}`;
+    // Open-Meteo daily forecast (no key)
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_mean&timezone=auto`;
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('weather fetch failed');
+    const data = await r.json();
+    // prepare chart + list
+    renderWeather(data.daily);
+  }catch(err){
+    console.error(err);
+    el('weatherBox').innerHTML = `<div class="muted">Weather not available. ${err.message}</div>`;
+  }
+}
+
+function renderWeather(daily){
+  // daily.time[], temperature_2m_max[], temperature_2m_min[], precipitation_probability_mean[]
+  const days = daily.time.map((t,i)=>({
+    date: t,
+    max: Math.round(daily.temperature_2m_max[i]),
+    min: Math.round(daily.temperature_2m_min[i]),
+    precip: Math.round((daily.precipitation_probability_mean && daily.precipitation_probability_mean[i]) || 0)
+  }));
+  const labels = days.map(d => new Date(d.date).toLocaleDateString(undefined,{weekday:'short'}));
+  const maxs = days.map(d=>d.max);
+  const mins = days.map(d=>d.min);
+
+  // render chart
+  const ctx = document.getElementById('weatherChart').getContext('2d');
+  if(weatherChart) weatherChart.destroy();
+  weatherChart = new Chart(ctx, {
+    type:'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Max (°C)', data: maxs, tension:0.3, fill:false, borderColor:'#2d6a4f', pointRadius:3 },
+        { label: 'Min (°C)', data: mins, tension:0.3, fill:false, borderColor:'#52b788', pointRadius:3 }
+      ]
+    },
+    options: { responsive:true, plugins:{legend:{position:'top'}} }
+  });
+
+  // list display
+  const box = el('weatherBox'); box.innerHTML = '';
+  days.forEach(d=>{
+    const div = document.createElement('div'); div.className='weather-item';
+    const dt = new Date(d.date);
+    div.innerHTML = `<div class="weather-day">${dt.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}</div>
+      <div class="weather-temp">${d.max}° / ${d.min}°</div>
+      <div class="muted" style="margin-top:6px">${d.precip}% rain</div>`;
+    box.appendChild(div);
+  });
+}
+
+/* init weather: try geolocation first then default */
+async function initWeather(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos => {
+      fetchWeatherByLatLon(pos.coords.latitude, pos.coords.longitude);
+    }, () => {
+      // default Chennai
+      fetchWeatherByLatLon(13.0827,80.2707);
+    }, {timeout:8000});
+  } else {
+    fetchWeatherByLatLon(13.0827,80.2707);
+  }
+}
+initWeather();
+
+/* place search input handler */
+el('placeInput').addEventListener('keypress', async (e) => {
+  if(e.key === 'Enter'){
+    const q = el('placeInput').value.trim();
+    if(!q) return;
+    const results = await geocodePlace(q);
+    if(results && results.length){
+      const chosen = results[0];
+      el('chosenPlace').innerText = chosen.display_name.split(',').slice(0,3).join(',');
+      fetchWeatherByLatLon(Number(chosen.lat), Number(chosen.lon));
+    } else {
+      alert('Place not found');
+    }
+  }
+});
+el('useLocationBtn').addEventListener('click', () => {
+  if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=> fetchWeatherByLatLon(pos.coords.latitude,pos.coords.longitude), ()=> alert('Unable to get location'), {timeout:8000}); }
+  else alert('Geolocation not available');
+});
+
+/* ---------- daily crop tips (rotates by day) ---------- */
+const dailyTips = [
+  "Check soil moisture before irrigating — overwatering wastes resources.",
+  "Use neem-based spray to control common pests in organic crops.",
+  "Harvest early in the morning to retain freshness and reduce spoilage.",
+  "Record yield per acre this season — comparison helps pricing next season.",
+  "Store seeds in dry, airtight containers to maintain viability.",
+  "Check market prices every morning before deciding on supply route.",
+  "Mix compost into the topsoil for better nutrient availability."
+];
+function showDailyTip(){
+  const idx = Math.floor(Date.now() / 86400000) % dailyTips.length;
+  el('dailyTip').innerText = dailyTips[idx];
+}
+showDailyTip();
+
+/* ---------- Market Prices (live if API accessible else sample) ---------- */
+const sampleMarketData = {
+  last_updated: new Date().toLocaleString(),
+  crops: [
+    {name:'Tomato', price:[34,36,38,37,39,42,41]}, // last 7 days
+    {name:'Onion', price:[30,31,30,32,33,34,33]},
+    {name:'Potato', price:[22,23,21,20,24,26,25]},
+    {name:'Banana', price:[12,12,12,13,13,14,13]}
+  ]
+};
+
+async function loadMarketData(){
+  el('cropList').innerHTML = '<div class="muted">Loading market prices...</div>';
+  try{
+    if(MARKET_API){
+      const r = await fetch(MARKET_API);
+      if(!r.ok) throw new Error('market API not available');
+      const data = await r.json();
+      renderMarketData(data);
+    } else {
+      // no API configured -> render sample (fully working)
+      renderMarketData(sampleMarketData);
+    }
+  }catch(err){
+    console.warn('Market fetch failed:', err);
+    // fallback to sample
+    renderMarketData(sampleMarketData);
+  }
+}
+
+function renderMarketData(data){
+  const list = el('cropList'); list.innerHTML = '';
+  (data.crops || []).forEach(c => {
+    const div = document.createElement('div'); div.className = 'crop-row';
+    const latest = c.price[c.price.length-1];
+    div.innerHTML = `<div class="crop-name">${c.name}</div><div style="display:flex;gap:8px;align-items:center"><div class="price-badge">₹${latest}</div><button class="small-btn" data-crop='${c.name}'>View</button></div>`;
+    list.appendChild(div);
+  });
+
+  // attach view handlers
+  list.querySelectorAll('button[data-crop]').forEach(btn => btn.addEventListener('click', (ev) => {
+    const cropName = btn.getAttribute('data-crop');
+    openMarketModal(cropName, data);
+  }));
+}
+
+el('reloadMarket').addEventListener('click', loadMarketData);
+loadMarketData();
+
+/* open market modal and show 7-day chart for selected crop */
+let marketChart = null;
+function openMarketModal(cropName, data){
+  const crop = (data.crops || []).find(c => c.name === cropName);
+  const modal = el('modal');
+  const content = el('modalContent');
+  if(!crop){
+    content.innerHTML = `<h3>Data not available for ${cropName}</h3>`;
+  } else {
+    content.innerHTML = `<h3>Price trend — ${cropName} <small class="muted" style="margin-left:12px">${data.last_updated || ''}</small></h3>
+      <div style="margin-top:12px"><canvas id="marketChartCanvas" height="220" style="width:100%"></canvas></div>
+      <div style="margin-top:12px"><button class="small-btn" id="exportCSV">Export CSV</button></div>`;
+    // render chart after DOM
+    setTimeout(()=> {
+      const ctx = document.getElementById('marketChartCanvas').getContext('2d');
+      if(marketChart) marketChart.destroy();
+      const labels = ['6d','5d','4d','3d','2d','1d','Today']; // relative days for 7 data points
+      marketChart = new Chart(ctx,{
+        type:'line',
+        data: { labels, datasets: [{label:`${cropName} (₹/kg)`, data: crop.price, borderColor:'#2d6a4f', tension:0.3, pointRadius:3 }]},
+        options: { responsive:true, plugins:{legend:{display:false}}}
+      });
+
+      el('exportCSV').addEventListener('click', ()=> {
+        // simple CSV export
+        const csv = ['day,price'].concat(labels.map((l,i)=>`${l},${crop.price[i]}`)).join('\n');
+        const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = `${cropName}_7day.csv`; a.click(); URL.revokeObjectURL(url);
+      });
+    }, 60);
+  }
+  modal.classList.add('show');
+}
+el('openMarketModal').addEventListener('click', ()=> openMarketModal((sampleMarketData.crops[0]||{}).name, sampleMarketData));
+
+/* ---------- News & Announcements (try NEWS_API else sample) ---------- */
+const sampleNews = [
+  {title:'New cold storage subsidy announced', src:'TN Agri Dept', time: new Date().toLocaleString(), summary:'Govt announces subsidy for building small cold storages in rural areas.'},
+  {title:'Soil health card camps scheduled', src:'TNAU', time: new Date().toLocaleString(), summary:'Free soil testing camps will be held in district centers next week.'},
+  {title:'Storage tips for paddy harvest', src:'Agri Tips', time: new Date().toLocaleString(), summary:'Best practices to reduce post-harvest losses.'}
+];
+
+async function loadNews(){
+  el('newsList').innerHTML = '<div class="muted">Loading news...</div>';
+  el('announcements').innerHTML = '<div class="muted">Loading announcements...</div>';
+  try{
+    if(NEWS_API){
+      const r = await fetch(NEWS_API);
+      if(!r.ok) throw new Error('news fetch failed');
+      const data = await r.json();
+      // expected data.items or data.articles
+      const items = data.items || data.articles || [];
+      renderNews(items);
+    } else {
+      // fallback sample
+      renderNews(sampleNews);
+    }
+  }catch(err){
+    console.warn('news fetch failed', err);
+    renderNews(sampleNews);
+  }
+}
+
+function renderNews(items){
+  const newsContainer = el('newsList'); newsContainer.innerHTML = '';
+  const annContainer = el('announcements'); annContainer.innerHTML = '';
+  (items || []).slice(0,10).forEach(it => {
+    // adapt expected fields
+    const title = it.title || it.headline || it.name || 'News';
+    const summary = it.summary || it.description || it.excerpt || (it.content && it.content.slice(0,120)) || '';
+    const src = it.source || it.src || it.origin || 'Official';
+    const time = it.pubDate || it.publishedAt || it.time || new Date().toLocaleString();
+
+    const n = document.createElement('div'); n.className='news-item';
+    n.innerHTML = `<h4>${title}</h4><div class="muted">${src} • ${new Date(time).toLocaleString()}</div><p>${summary}</p>`;
+    newsContainer.appendChild(n);
+
+    // Put top 3 into announcements
+    if(annContainer.children.length < 3){
+      const a = document.createElement('div'); a.style.marginTop='8px';
+      a.innerHTML = `<strong>${title}</strong><div class="muted" style="margin-top:6px">${summary}</div>`;
+      annContainer.appendChild(a);
+    }
+  });
+}
+el('refreshNews').addEventListener('click', loadNews);
+loadNews();
+
+/* ---------- notifications & profile menu ---------- */
+const notifBtn = el('notifBtn'), profileBtn = el('profileBtn'), profileMenu = el('profileMenu');
+notifBtn.addEventListener('click', (e) => {
+  // small demo notifications popup
+  openModalContent(`<h3>Notifications</h3><div style="margin-top:12px"><div class="muted">No new notifications (demo). Use simulation functions in console.</div></div>`);
+});
+profileBtn.addEventListener('click', (e) => {
+  profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+  e.stopPropagation();
+});
+document.addEventListener('click', ()=> { profileMenu.style.display = 'none'; });
+
+/* ---------- modal utilities ---------- */
+function openModalContent(html){
+  el('modalContent').innerHTML = html;
+  el('modal').classList.add('show');
+}
+el('modalClose').addEventListener('click', ()=> el('modal').classList.remove('show'));
+el('modal').addEventListener('click', (e)=> { if(e.target === el('modal')) el('modal').classList.remove('show'); });
+
+/* ---------- Upload / nav button wiring ---------- */
+el('uploadBtn').addEventListener('click', ()=> window.location.href = 'farmer_upload.html');
+el('qaUpload').addEventListener('click', ()=> window.location.href = 'farmer_upload.html');
+el('navChat').addEventListener('click', ()=> openModalContent('<h3>Chat</h3><p class="muted">Chat panel opens (demo).</p>'));
+el('navShop').addEventListener('click', ()=> openModalContent('<h3>Shop</h3><p class="muted">Shop page (demo).</p>'));
+el('navSubs').addEventListener('click', ()=> openModalContent('<h3>Subscriptions</h3><p class="muted">Subscription plans (demo).</p>'));
+el('navHelp').addEventListener('click', ()=> openModalContent('<h3>Help</h3><p class="muted">Help content (demo).</p>'));
+
+/* ---------- small demo simulation helpers (exposed) ---------- */
+function simulateBuyerContact(){
+  const name = 'Buyer' + Math.floor(Math.random()*900 + 100);
+  addBuyerToPanel(name);
+  openModalContent(`<h3>Simulated buyer message</h3><p class="muted">${name} asked about your crop.</p>`);
+}
+function addBuyerToPanel(name){
+  const elb = document.createElement('div'); elb.className = 'news-item';
+  elb.innerHTML = `<strong>${name}</strong><div class="muted">Recent contact</div>`;
+  el('newsList').prepend(elb);
+}
+window.simulateBuyerContact = simulateBuyerContact;
+
+/* ---------- init small things ---------- */
+function init(){
+  // set initial lang texts
+  setLang(LANG);
+  showDailyTip();
+  // load weather/chart is already initiated
+  loadMarketData();
+  loadNews();
+}
+init();
+
+
+</script>
+</body>
+</html>
+

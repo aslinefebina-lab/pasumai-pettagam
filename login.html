@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pasumai Pettagam - Login</title>
+
+<style>
+/* Full Background */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #c7f5c4, #a3e59f, #7edc87);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Login Card */
+.login-box {
+    width: 380px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+    text-align: center;
+    position: relative;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Smooth fade */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Logo */
+.logo {
+    width: 120px;
+    display: block;
+    margin: 0 auto 10px auto;
+}
+
+/* Title */
+.title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a5319;
+    margin-bottom: 25px;
+}
+
+/* Inputs */
+input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #82c475;
+    background: #f2fbf0;
+    font-size: 15px;
+}
+
+/* Primary buttons */
+.btn {
+    width: 90%;
+    padding: 12px;
+    margin-top: 12px;
+    border: none;
+    background: #1a5319;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: bold;
+    transition: 0.25s;
+}
+.btn:hover {
+    background: #0d3a0f;
+}
+
+/* Other login options */
+.option-btn {
+    width: 90%;
+    padding: 10px;
+    margin-top: 10px;
+    background: #4aa94a;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    font-size: 15px;
+    transition: 0.25s;
+}
+.option-btn:hover {
+    background: #3d8e3d;
+}
+
+/* Language Buttons */
+.lang-box {
+    margin-top: 15px;
+}
+.lang-btn {
+    padding: 8px 14px;
+    margin: 3px;
+    border: none;
+    background: #1a5319;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.lang-btn:hover {
+    background: #0f3a0f;
+}
+
+/* Speaker Button */
+.speaker {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    font-size: 32px;
+    cursor: pointer;
+    color: #1a5319;
+    transition: 0.25s;
+}
+.speaker:hover {
+    transform: scale(1.1);
+    color: #0f3a0f;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <!-- SPEAKER -->
+    <div class="speaker" onclick="speakEnglish()">🔊</div>
+
+    <!-- LOGO -->
+    <img src="images/dt  logo.png" class="logo" alt="Logo">
+
+    <!-- TITLE -->
+    <div id="title" class="title">Login</div>
+
+    <!-- Inputs -->
+    <input id="name" type="text" placeholder="Enter your name">
+    <input id="email" type="email" placeholder="Enter your email">
+    <input id="password" type="password" placeholder="Enter your password">
+
+    <button id="loginBtn" class="btn">Login</button>
+
+    <!-- Role selections -->
+    <button id="farmerBtn" class="option-btn" onclick="window.location.href='register_farmer.html'">
+        Login as Farmer
+    </button>
+
+    <button id="buyerBtn" class="option-btn" onclick="window.location.href='register_buyer.html'">
+        Login as Buyer
+    </button>
+
+    <button id="stockistBtn" class="option-btn" onclick="window.location.href='register_stockist.html'">
+        Login as Stockist
+    </button>
+
+    <!-- Language -->
+    <div class="lang-box">
+        <button class="lang-btn" onclick="setEnglish()">English</button>
+        <button class="lang-btn" onclick="setTamil()">தமிழ்</button>
+    </div>
+
+</div>
+
+<script>
+/* ======================= */
+/*  TRANSLATION TEXT */
+/* ======================= */
+let text = {
+    en: {
+        title: "Login",
+        name: "Enter your name",
+        email: "Enter your email",
+        password: "Enter your password",
+        loginBtn: "Login",
+        farmerBtn: "Login as Farmer",
+        buyerBtn: "Login as Buyer",
+        stockistBtn: "Login as Stockist"
+    },
+    ta: {
+        title: "உள்நுழைவு",
+        name: "பெயர் உள்ளிடவும்",
+        email: "மின்னஞ்சல் உள்ளிடவும்",
+        password: "கடவுச்சொல் உள்ளிடவும்",
+        loginBtn: "உள்நுழை",
+        farmerBtn: "விவசாயி உள்நுழைவு",
+        buyerBtn: "கொள்முதல் செய்பவர்",
+        stockistBtn: "ஸ்டாக்கிஸ்ட் உள்நுழைவு"
+    }
+};
+
+/* ======================= */
+/* LANGUAGE SWITCH */
+/* ======================= */
+function setEnglish() {
+    document.getElementById("title").innerText = text.en.title;
+    document.getElementById("name").placeholder = text.en.name;
+    document.getElementById("email").placeholder = text.en.email;
+    document.getElementById("password").placeholder = text.en.password;
+    document.getElementById("loginBtn").innerText = text.en.loginBtn;
+    document.getElementById("farmerBtn").innerText = text.en.farmerBtn;
+    document.getElementById("buyerBtn").innerText = text.en.buyerBtn;
+    document.getElementById("stockistBtn").innerText = text.en.stockistBtn;
+}
+
+function setTamil() {
+    document.getElementById("title").innerText = text.ta.title;
+    document.getElementById("name").placeholder = text.ta.name;
+    document.getElementById("email").placeholder = text.ta.email;
+    document.getElementById("password").placeholder = text.ta.password;
+    document.getElementById("loginBtn").innerText = text.ta.loginBtn;
+    document.getElementById("farmerBtn").innerText = text.ta.farmerBtn;
+    document.getElementById("buyerBtn").innerText = text.ta.buyerBtn;
+    document.getElementById("stockistBtn").innerText = text.ta.stockistBtn;
+}
+
+/* ======================= */
+/* SPEAKER - ONLY ENGLISH */
+/* ======================= */
+function speakEnglish() {
+    let msg = new SpeechSynthesisUtterance();
+    msg.text =
+        "Welcome to Pasumai Pettagam. This is the login page. If you are a farmer, click Login as Farmer. If you are a buyer, click Login as Buyer. If you are a stockist, click Login as Stockist. You can also login normally by filling your name, email, and password.";
+    msg.lang = "en-US";
+    msg.rate = 1;
+    speechSynthesis.speak(msg);
+}
+</script>
+<script>
+document.getElementById("loginBtn").addEventListener("click", function () {
+    window.location.href = "home.html";   // 🔗 redirect to home page
+});
+</script>
+
+</body>
+</html>
