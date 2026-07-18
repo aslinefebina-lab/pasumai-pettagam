@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buyer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <main class="container py-4">
+      <h1 class="section-title mb-3">Buyer Dashboard</h1>
+      <form id="filter-form" class="card custom-card p-3 mb-4">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-3"><label class="form-label">Search</label><input class="form-control" name="q" placeholder="Crop name" /></div>
+          <div class="col-md-3"><label class="form-label">Category</label><input class="form-control" name="category" placeholder="Vegetables" /></div>
+          <div class="col-md-2"><label class="form-label">Min Price</label><input class="form-control" type="number" name="minPrice" min="0" /></div>
+          <div class="col-md-2"><label class="form-label">Max Price</label><input class="form-control" type="number" name="maxPrice" min="0" /></div>
+          <div class="col-md-2"><button class="btn btn-green w-100" type="submit">Filter</button></div>
+        </div>
+      </form>
+      <div id="crop-grid" class="row g-4"></div>
+    </main>
+    <script src="/js/api.js"></script>
+    <script src="/js/buyer.js"></script>
+  </body>
+</html>

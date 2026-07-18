@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stockist Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="container py-5">
+      <h1 class="section-title mb-3">Stockist Login</h1>
+      <form class="card custom-card p-4" onsubmit="event.preventDefault();window.location.href='/pages/stockist-dashboard.html';">
+        <input class="form-control mb-3" type="email" placeholder="Email" required />
+        <input class="form-control mb-3" type="password" placeholder="Password" required />
+        <button class="btn btn-green" type="submit">Login</button>
+      </form>
+    </div>
+  </body>
+</html>

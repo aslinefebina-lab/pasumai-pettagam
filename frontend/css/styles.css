@@ -1,0 +1,82 @@
+:root {
+  --green-900: #1b5e20;
+  --green-700: #2e7d32;
+  --green-500: #4caf50;
+  --green-100: #e8f5e9;
+  --accent: #a5d6a7;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f7fff8;
+  color: #1f2937;
+}
+
+.navbar {
+  background: rgba(27, 94, 32, 0.95);
+}
+
+.hero {
+  background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 65%);
+  padding: 5rem 0;
+}
+
+.hero-img {
+  width: 100%;
+  max-height: 350px;
+  object-fit: contain;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.section-title {
+  color: var(--green-900);
+  font-weight: 700;
+}
+
+.custom-card {
+  border: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.custom-card:hover {
+  transform: translateY(-4px);
+}
+
+.crop-image {
+  height: 180px;
+  object-fit: cover;
+}
+
+.btn-green {
+  background: var(--green-700);
+  border: none;
+  color: #fff;
+}
+
+.btn-green:hover {
+  background: var(--green-900);
+  color: #fff;
+}
+
+.badge-green {
+  background: var(--green-100);
+  color: var(--green-900);
+}
+
+footer {
+  background: #103d14;
+  color: #d1fae5;
+}
