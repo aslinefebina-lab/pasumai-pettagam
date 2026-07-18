@@ -1,11 +1,40 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
+const { isValidObjectId } = require('mongoose');
 const Crop = require('../models/Crop');
 const validateCrop = require('../utils/validateCrop');
 
 const router = express.Router();
+const cropReadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+const cropWriteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 const inMemoryStore = [];
 let useMemory = false;
+
+const escapeRegExp = (text = '') => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const toCropPayload = (body) => ({
+  cropName: body.cropName,
+  category: body.category,
+  quantity: Number(body.quantity),
+  price: Number(body.price),
+  sowingDate: body.sowingDate,
+  harvestingDate: body.harvestingDate,
+  location: body.location,
+  images: Array.isArray(body.images) ? body.images : [],
+  farmerName: body.farmerName || 'Farmer',
+  farmerPhone: body.farmerPhone || 'Not provided'
+});
 
 function setMemoryMode(value) {
   useMemory = value;
@@ -25,11 +54,11 @@ async function listCrops({ q, category, minPrice, maxPrice }) {
   const filter = {};
 
   if (q) {
-    filter.cropName = { $regex: q, $options: 'i' };
+    filter.cropName = { $regex: escapeRegExp(q), $options: 'i' };
   }
 
   if (category) {
-    filter.category = { $regex: `^${category}$`, $options: 'i' };
+    filter.category = { $regex: `^${escapeRegExp(category)}$`, $options: 'i' };
   }
 
   if (minPrice !== undefined || maxPrice !== undefined) {
@@ -45,12 +74,12 @@ async function listCrops({ q, category, minPrice, maxPrice }) {
   return Crop.find(filter).sort({ createdAt: -1 });
 }
 
-router.get('/', async (req, res) => {
+router.get('/', cropReadLimiter, async (req, res) => {
   const crops = await listCrops(req.query);
   res.json(crops);
 });
 
-router.get('/bulk', async (req, res) => {
+router.get('/bulk', cropReadLimiter, async (req, res) => {
   const minQuantity = Number(req.query.minQuantity || 500);
   const crops = useMemory
     ? inMemoryStore.filter((crop) => crop.quantity >= minQuantity)
@@ -58,12 +87,15 @@ router.get('/bulk', async (req, res) => {
   res.json(crops);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', cropReadLimiter, async (req, res) => {
   let crop;
 
   if (useMemory) {
     crop = inMemoryStore.find((item) => item._id === req.params.id);
   } else {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid crop id' });
+    }
     crop = await Crop.findById(req.params.id);
   }
 
@@ -74,17 +106,13 @@ router.get('/:id', async (req, res) => {
   return res.json(crop);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', cropWriteLimiter, async (req, res) => {
   const errors = validateCrop(req.body);
   if (errors.length) {
     return res.status(400).json({ errors });
   }
 
-  const payload = {
-    ...req.body,
-    quantity: Number(req.body.quantity),
-    price: Number(req.body.price)
-  };
+  const payload = toCropPayload(req.body);
 
   if (useMemory) {
     const crop = { ...payload, _id: String(Date.now()) };
@@ -96,17 +124,13 @@ router.post('/', async (req, res) => {
   return res.status(201).json(crop);
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', cropWriteLimiter, async (req, res) => {
   const errors = validateCrop(req.body);
   if (errors.length) {
     return res.status(400).json({ errors });
   }
 
-  const payload = {
-    ...req.body,
-    quantity: Number(req.body.quantity),
-    price: Number(req.body.price)
-  };
+  const payload = toCropPayload(req.body);
 
   if (useMemory) {
     const index = inMemoryStore.findIndex((item) => item._id === req.params.id);
@@ -115,6 +139,10 @@ router.put('/:id', async (req, res) => {
     }
     inMemoryStore[index] = { ...inMemoryStore[index], ...payload };
     return res.json(inMemoryStore[index]);
+  }
+
+  if (!isValidObjectId(req.params.id)) {
+    return res.status(400).json({ message: 'Invalid crop id' });
   }
 
   const updated = await Crop.findByIdAndUpdate(req.params.id, payload, {
@@ -129,7 +157,7 @@ router.put('/:id', async (req, res) => {
   return res.json(updated);
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', cropWriteLimiter, async (req, res) => {
   if (useMemory) {
     const index = inMemoryStore.findIndex((item) => item._id === req.params.id);
     if (index === -1) {
@@ -137,6 +165,10 @@ router.delete('/:id', async (req, res) => {
     }
     inMemoryStore.splice(index, 1);
     return res.status(204).send();
+  }
+
+  if (!isValidObjectId(req.params.id)) {
+    return res.status(400).json({ message: 'Invalid crop id' });
   }
 
   const deleted = await Crop.findByIdAndDelete(req.params.id);
